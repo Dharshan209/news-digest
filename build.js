@@ -28,10 +28,19 @@ if (fs.existsSync('./public')) {
 // Process CSS
 fs.copyFileSync('./src/index.css', './dist/index.css');
 
+// Also copy any other CSS files that may be imported
+if (fs.existsSync('./style.css')) {
+  fs.copyFileSync('./style.css', './dist/style.css');
+}
+
 // Build JS bundle
 console.log('Building JS...');
 try {
-  await esbuild.build({
+  // Process CSS first with PostCSS
+  console.log('Processing CSS...');
+  
+  // Build JS bundle
+  const result = await esbuild.build({
     entryPoints: ['./src/main.jsx'],
     bundle: true,
     minify: true,
@@ -41,10 +50,10 @@ try {
     loader: {
       '.js': 'jsx',
       '.jsx': 'jsx',
-      '.svg': 'file',
-      '.png': 'file',
-      '.jpg': 'file',
-      '.gif': 'file',
+      '.svg': 'dataurl',
+      '.png': 'dataurl',
+      '.jpg': 'dataurl',
+      '.gif': 'dataurl',
     },
     define: {
       'process.env.NODE_ENV': '"production"',
@@ -55,8 +64,14 @@ try {
     target: 'es2020',
     resolveExtensions: ['.js', '.jsx', '.json'],
     external: ['*.woff', '*.woff2', '*.ttf', '*.eot'],
+    logLevel: 'info',
+    metafile: true,
   });
+  
   console.log('Build complete');
+  
+  // Write the metafile for debugging
+  fs.writeFileSync('./dist/meta.json', JSON.stringify(result.metafile, null, 2));
 } catch (error) {
   console.error('Build failed:', error);
   process.exit(1);

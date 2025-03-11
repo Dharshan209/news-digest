@@ -10,6 +10,6 @@
     "silent": true
   },
   "env": {
-    "NODE_VERSION": "16.x"
+    "NODE_VERSION": "18.x"
   }
 }

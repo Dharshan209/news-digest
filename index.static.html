@@ -5,6 +5,54 @@
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NewsDigest - Your Personalized News Experience</title>
+  
+  <!-- Priority CSS for styling fixes -->
+  <style id="priority-styles">
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f8fafc;
+      width: 100%;
+      height: 100%;
+    }
+    #root {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      width: 100%;
+      text-align: center;
+    }
+    .loading h1 {
+      color: #334155;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .loading p {
+      color: #64748b;
+      margin-bottom: 2rem;
+    }
+    .loader {
+      display: inline-block;
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(100, 116, 139, 0.3);
+      border-radius: 50%;
+      border-top-color: #64748b;
+      animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+  
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/jwt-decode@3.1.2/build/jwt-decode.js" crossorigin></script>
@@ -85,10 +133,12 @@
     .font-medium { font-weight: 500; }
     .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   </style>
+  <link rel="stylesheet" href="/newsdigest.css">
+  <link rel="stylesheet" href="/emergency-fix.css">
   <link rel="stylesheet" href="/index.css">
+  <link rel="stylesheet" href="/assets/newsdigest.css">
   <link rel="stylesheet" href="/assets/index.css">
   <link rel="stylesheet" href="/assets/style.css">
-  <link rel="stylesheet" href="/emergency-fix.css">
   <link rel="stylesheet" href="/assets/emergency-fix.css">
 </head>
 <body>
@@ -157,35 +207,267 @@
     };
   </script>
   
-  <script type="module">
-    // Inline script to fix any styling issues
-    setTimeout(() => {
-      // Create a style element for critical CSS
-      const style = document.createElement('style');
-      style.textContent = `
-        /* Core TailwindCSS utilities needed for layout */
-        .flex { display: flex !important; }
-        .items-center { align-items: center !important; }
-        .justify-center { justify-content: center !important; }
-        .justify-between { justify-content: space-between !important; }
-        .flex-col { flex-direction: column !important; }
-        .w-full { width: 100% !important; }
-        .max-w-7xl { max-width: 80rem !important; }
-        .mx-auto { margin-left: auto !important; margin-right: auto !important; }
-        .my-4 { margin-top: 1rem !important; margin-bottom: 1rem !important; }
-        .space-y-4 > * + * { margin-top: 1rem !important; }
-        .p-4 { padding: 1rem !important; }
-        .px-4 { padding-left: 1rem !important; padding-right: 1rem !important; }
-        .py-4 { padding-top: 1rem !important; padding-bottom: 1rem !important; }
-        .bg-white { background-color: #ffffff !important; }
-        .bg-gray-50 { background-color: #f9fafb !important; }
-        .rounded { border-radius: 0.25rem !important; }
-        .shadow { box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06) !important; }
-        .text-gray-800 { color: #1f2937 !important; }
-      `;
-      document.head.appendChild(style);
-      console.log('Emergency style fixes applied');
-    }, 500);
+  <style>
+    /* Complete Tailwind reset and utility classes */
+    *, ::before, ::after { box-sizing: border-box; border-width: 0; border-style: solid; border-color: #e5e7eb; }
+    html { line-height: 1.5; -webkit-text-size-adjust: 100%; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; }
+    body { margin: 0; line-height: inherit; }
+    hr { height: 0; color: inherit; border-top-width: 1px; }
+    h1, h2, h3, h4, h5, h6 { font-size: inherit; font-weight: inherit; }
+    a { color: inherit; text-decoration: inherit; }
+    b, strong { font-weight: bolder; }
+    code, kbd, samp, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 1em; }
+    small { font-size: 80%; }
+    sub, sup { font-size: 75%; line-height: 0; position: relative; vertical-align: baseline; }
+    sub { bottom: -0.25em; }
+    sup { top: -0.5em; }
+    table { text-indent: 0; border-color: inherit; border-collapse: collapse; }
+    button, input, optgroup, select, textarea { font-family: inherit; font-size: 100%; font-weight: inherit; line-height: inherit; color: inherit; margin: 0; padding: 0; }
+    button, select { text-transform: none; }
+    button, [type='button'], [type='reset'], [type='submit'] { -webkit-appearance: button; background-color: transparent; background-image: none; }
+    :-moz-focusring { outline: auto; }
+    :-moz-ui-invalid { box-shadow: none; }
+    progress { vertical-align: baseline; }
+    ::-webkit-inner-spin-button, ::-webkit-outer-spin-button { height: auto; }
+    [type='search'] { -webkit-appearance: textfield; outline-offset: -2px; }
+    ::-webkit-search-decoration { -webkit-appearance: none; }
+    ::-webkit-file-upload-button { -webkit-appearance: button; font: inherit; }
+    summary { display: list-item; }
+    blockquote, dl, dd, h1, h2, h3, h4, h5, h6, hr, figure, p, pre { margin: 0; }
+    ol, ul, menu { list-style: none; margin: 0; padding: 0; }
+    textarea { resize: vertical; }
+    input::placeholder, textarea::placeholder { opacity: 1; color: #9ca3af; }
+    button, [role="button"] { cursor: pointer; }
+    :disabled { cursor: default; }
+    img, svg, video, canvas, audio, iframe, embed, object { display: block; vertical-align: middle; }
+    img, video { max-width: 100%; height: auto; }
+    [hidden] { display: none; }
+  </style>
+  
+  <style>
+    /* Core layout and components */
+    body { background-color: #f8fafc; color: #1f2937; min-height: 100vh; }
+    #root { min-height: 100vh; }
+    
+    /* Layout classes */
+    .container { width: 100%; margin-left: auto; margin-right: auto; }
+    .max-w-7xl { max-width: 80rem; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+    .px-4 { padding-left: 1rem; padding-right: 1rem; }
+    .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+    .p-4 { padding: 1rem; }
+    .p-6 { padding: 1.5rem; }
+    .mt-4 { margin-top: 1rem; }
+    .mb-4 { margin-bottom: 1rem; }
+    .my-4 { margin-top: 1rem; margin-bottom: 1rem; }
+    .space-y-4 > * + * { margin-top: 1rem; }
+    
+    /* Flexbox and Grid */
+    .flex { display: flex; }
+    .inline-flex { display: inline-flex; }
+    .grid { display: grid; }
+    .items-center { align-items: center; }
+    .items-start { align-items: flex-start; }
+    .justify-center { justify-content: center; }
+    .justify-between { justify-content: space-between; }
+    .flex-col { flex-direction: column; }
+    .flex-row { flex-direction: row; }
+    .flex-1 { flex: 1 1 0%; }
+    .flex-none { flex: none; }
+    .gap-4 { gap: 1rem; }
+    
+    /* Typography */
+    .text-xs { font-size: 0.75rem; line-height: 1rem; }
+    .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+    .text-base { font-size: 1rem; line-height: 1.5rem; }
+    .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+    .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+    .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+    .font-medium { font-weight: 500; }
+    .font-bold { font-weight: 700; }
+    .font-semibold { font-weight: 600; }
+    .text-center { text-align: center; }
+    .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    
+    /* Colors */
+    .bg-white { background-color: #ffffff; }
+    .bg-gray-50 { background-color: #f9fafb; }
+    .bg-gray-100 { background-color: #f3f4f6; }
+    .bg-blue-600 { background-color: #2563eb; }
+    .bg-blue-500 { background-color: #3b82f6; }
+    .text-gray-500 { color: #6b7280; }
+    .text-gray-700 { color: #374151; }
+    .text-gray-800 { color: #1f2937; }
+    .text-gray-900 { color: #111827; }
+    .text-blue-600 { color: #2563eb; }
+    .text-white { color: #ffffff; }
+    
+    /* Borders and effects */
+    .border { border-width: 1px; }
+    .border-gray-200 { border-color: #e5e7eb; }
+    .border-gray-300 { border-color: #d1d5db; }
+    .border-b { border-bottom-width: 1px; }
+    .border-b-2 { border-bottom-width: 2px; }
+    .border-blue-500 { border-color: #3b82f6; }
+    .rounded { border-radius: 0.25rem; }
+    .rounded-md { border-radius: 0.375rem; }
+    .rounded-lg { border-radius: 0.5rem; }
+    .rounded-full { border-radius: 9999px; }
+    .shadow { box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06); }
+    .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); }
+    .shadow-md { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); }
+    
+    /* Navigation */
+    nav { background-color: #ffffff; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1); }
+    
+    /* Card components */
+    .card {
+      background-color: #ffffff;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    /* Form elements */
+    input[type="text"], input[type="email"], input[type="password"] {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+    }
+    
+    button {
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      font-weight: 500;
+    }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      font-weight: 500;
+      transition-property: background-color, border-color, color;
+      transition-duration: 150ms;
+    }
+    
+    .btn-primary {
+      background-color: #2563eb;
+      color: #ffffff;
+    }
+    
+    .btn-secondary {
+      background-color: #f3f4f6;
+      color: #1f2937;
+    }
+    
+    /* Animations */
+    .animate-spin {
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+  
+  <script>
+    // Add runtime style fixes when DOM loads
+    document.addEventListener('DOMContentLoaded', function() {
+      // Fix all Tailwind classes
+      const fixStyles = () => {
+        const styles = document.createElement('style');
+        styles.textContent = `
+          /* Force core styles */
+          body { 
+            background-color: #f8fafc !important;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          
+          /* Layout fixes */
+          .min-h-screen { min-height: 100vh !important; }
+          .flex { display: flex !important; }
+          .flex-col { flex-direction: column !important; }
+          .items-center { align-items: center !important; }
+          .justify-center { justify-content: center !important; }
+          .justify-between { justify-content: space-between !important; }
+          .w-full { width: 100% !important; }
+          .max-w-7xl { max-width: 80rem !important; }
+          .mx-auto { margin-left: auto !important; margin-right: auto !important; }
+          .px-4 { padding-left: 1rem !important; padding-right: 1rem !important; }
+          .py-4 { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+          .py-6 { padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
+          .px-6 { padding-left: 1.5rem !important; padding-right: 1.5rem !important; }
+          .mt-4 { margin-top: 1rem !important; }
+          .mb-4 { margin-bottom: 1rem !important; }
+          .space-y-4 > * + * { margin-top: 1rem !important; }
+          
+          /* Force navigation styles */
+          nav, .navbar, header { 
+            background-color: #ffffff !important;
+            box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06) !important;
+            width: 100% !important;
+          }
+          
+          /* Override any conflicting card styles */
+          .card, .news-card, div[class*="card"], div[class*="Card"] {
+            background-color: #ffffff !important;
+            border-radius: 0.5rem !important;
+            box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06) !important;
+            padding: 1.25rem !important;
+            margin-bottom: 1rem !important;
+          }
+          
+          /* Button styles */
+          button:not([class]) {
+            padding: 0.5rem 1rem !important;
+            border-radius: 0.375rem !important;
+            font-weight: 500 !important;
+          }
+          
+          /* Form styles */
+          input[type="text"]:not([class]), 
+          input[type="email"]:not([class]), 
+          input[type="password"]:not([class]) {
+            width: 100% !important;
+            padding: 0.5rem 0.75rem !important;
+            border: 1px solid #d1d5db !important;
+            border-radius: 0.375rem !important;
+          }
+        `;
+        document.head.appendChild(styles);
+        
+        // Reinforce Tailwind classes by reapplying them
+        const tailwindClasses = [
+          { selector: 'body', classes: 'bg-gray-50' },
+          { selector: '#root', classes: 'min-h-screen' },
+          { selector: 'main', classes: 'py-6 sm:py-10' },
+          { selector: 'nav', classes: 'bg-white shadow-sm sticky top-0 z-10' },
+          { selector: '.card', classes: 'bg-white rounded-lg shadow p-4' }
+        ];
+        
+        tailwindClasses.forEach(item => {
+          const elements = document.querySelectorAll(item.selector);
+          elements.forEach(el => {
+            el.className += ' ' + item.classes;
+          });
+        });
+      };
+      
+      // Run immediately
+      fixStyles();
+      
+      // Run again after a delay
+      setTimeout(fixStyles, 500);
+      
+      // Run again when all resources are loaded
+      window.addEventListener('load', fixStyles);
+    });
   </script>
   <script src="/assets/main.js"></script>
 </body>

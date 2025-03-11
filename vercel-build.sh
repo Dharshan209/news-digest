@@ -75,10 +75,12 @@ node postcss-build.js
 echo "Running custom build..."
 node build.mjs
 
-# Copy our emergency UI fix CSS file
+# Copy our emergency UI fix CSS files
 echo "Adding emergency UI fix CSS..."
 cp dist-fix.css dist/emergency-fix.css
 cp dist-fix.css dist/assets/emergency-fix.css
+cp newsdigest.css dist/newsdigest.css
+cp newsdigest.css dist/assets/newsdigest.css
 
 # Use static HTML with environment variables
 echo "Using static HTML file with environment variables..."

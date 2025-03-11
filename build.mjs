@@ -51,7 +51,7 @@ async function buildJs() {
       entryPoints: [path.join(__dirname, 'src/main.jsx')],
       bundle: true,
       minify: true,
-      format: 'esm',
+      format: 'iife',
       target: 'es2020',
       outfile: path.join(assetsFolder, 'main.js'),
       define: {

@@ -36,6 +36,12 @@ try {
   // Add the JWT decode script right after the opening body tag
   html = html.replace('<body>', '<body>' + jwtDecodeScript);
   
+  // Fix the module script to be nomodule to avoid MIME type issues
+  html = html.replace(
+    '<script type="module" src="/assets/main.js"></script>',
+    '<script src="/assets/main.js"></script>'
+  );
+  
   fs.writeFileSync(htmlPath, html);
   console.log('Added JWT decode polyfill to HTML');
 } catch (error) {

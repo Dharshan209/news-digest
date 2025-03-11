@@ -88,6 +88,8 @@
   <link rel="stylesheet" href="/index.css">
   <link rel="stylesheet" href="/assets/index.css">
   <link rel="stylesheet" href="/assets/style.css">
+  <link rel="stylesheet" href="/emergency-fix.css">
+  <link rel="stylesheet" href="/assets/emergency-fix.css">
 </head>
 <body>
   <div id="root">
@@ -155,6 +157,36 @@
     };
   </script>
   
+  <script type="module">
+    // Inline script to fix any styling issues
+    setTimeout(() => {
+      // Create a style element for critical CSS
+      const style = document.createElement('style');
+      style.textContent = `
+        /* Core TailwindCSS utilities needed for layout */
+        .flex { display: flex !important; }
+        .items-center { align-items: center !important; }
+        .justify-center { justify-content: center !important; }
+        .justify-between { justify-content: space-between !important; }
+        .flex-col { flex-direction: column !important; }
+        .w-full { width: 100% !important; }
+        .max-w-7xl { max-width: 80rem !important; }
+        .mx-auto { margin-left: auto !important; margin-right: auto !important; }
+        .my-4 { margin-top: 1rem !important; margin-bottom: 1rem !important; }
+        .space-y-4 > * + * { margin-top: 1rem !important; }
+        .p-4 { padding: 1rem !important; }
+        .px-4 { padding-left: 1rem !important; padding-right: 1rem !important; }
+        .py-4 { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+        .bg-white { background-color: #ffffff !important; }
+        .bg-gray-50 { background-color: #f9fafb !important; }
+        .rounded { border-radius: 0.25rem !important; }
+        .shadow { box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06) !important; }
+        .text-gray-800 { color: #1f2937 !important; }
+      `;
+      document.head.appendChild(style);
+      console.log('Emergency style fixes applied');
+    }, 500);
+  </script>
   <script src="/assets/main.js"></script>
 </body>
 </html>

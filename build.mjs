@@ -107,7 +107,10 @@ async function buildJs() {
       platform: 'browser',
       plugins: [jwtDecodePlugin],
       external: [], // Don't mark anything as external to ensure proper bundling
-      inject: [path.join(__dirname, 'shims.js')], // Inject shims for global polyfills
+      inject: [
+        path.join(__dirname, 'shims.js'), // Inject shims for global polyfills
+        path.join(__dirname, 'fix-styles.js') // Inject style fixes
+      ]
     });
     
     console.log('JS build complete');

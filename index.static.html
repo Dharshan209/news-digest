@@ -66,8 +66,28 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
+    
+    /* Core Tailwind utility classes (critical CSS) */
+    .flex { display: flex; }
+    .items-center { align-items: center; }
+    .justify-center { justify-content: center; }
+    .justify-between { justify-content: space-between; }
+    .flex-col { flex-direction: column; }
+    .w-full { width: 100%; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+    .my-4 { margin-top: 1rem; margin-bottom: 1rem; }
+    .p-4 { padding: 1rem; }
+    .rounded { border-radius: 0.25rem; }
+    .bg-white { background-color: #ffffff; }
+    .shadow { box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); }
+    .text-gray-800 { color: #1f2937; }
+    .text-lg { font-size: 1.125rem; }
+    .font-medium { font-weight: 500; }
+    .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   </style>
+  <link rel="stylesheet" href="/index.css">
   <link rel="stylesheet" href="/assets/index.css">
+  <link rel="stylesheet" href="/assets/style.css">
 </head>
 <body>
   <div id="root">

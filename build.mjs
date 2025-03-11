@@ -39,6 +39,12 @@ function processCss() {
         path.join(__dirname, 'src/index.css'),
         path.join(assetsFolder, 'index.css')
       );
+      
+      // Also create a copy in the root assets directory for proper path references
+      fs.copyFileSync(
+        path.join(__dirname, 'src/index.css'),
+        path.join(distFolder, 'index.css')
+      );
     }
     
     // Also copy any other CSS files
@@ -46,6 +52,21 @@ function processCss() {
       fs.copyFileSync(
         path.join(__dirname, 'style.css'),
         path.join(assetsFolder, 'style.css')
+      );
+      
+      // Also create a copy in the root assets directory for proper path references
+      fs.copyFileSync(
+        path.join(__dirname, 'style.css'),
+        path.join(distFolder, 'style.css')
+      );
+    }
+    
+    // If we have node_modules/tailwindcss, include those styles
+    const tailwindPath = path.join(__dirname, 'node_modules/tailwindcss/dist/tailwind.min.css');
+    if (fs.existsSync(tailwindPath)) {
+      fs.copyFileSync(
+        tailwindPath,
+        path.join(assetsFolder, 'tailwind.min.css')
       );
     }
     

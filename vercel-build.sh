@@ -67,6 +67,10 @@ if [ -n "$VERCEL_ENV" ]; then
   export VITE_NHOST_REGION=${VITE_NHOST_REGION:-""}
 fi
 
+# Process Tailwind CSS first
+echo "Processing Tailwind CSS..."
+node postcss-build.js
+
 # Run the custom build script (no rollup)
 echo "Running custom build..."
 node build.mjs

@@ -23,9 +23,16 @@ fi
 echo "Running custom build..."
 node build.mjs
 
-# Use static HTML instead of modifying the original
-echo "Using static HTML file..."
+# Use static HTML with environment variables
+echo "Using static HTML file with environment variables..."
 cp index.static.html dist/index.html
+
+# Inject actual environment variables
+if [ -n "$VITE_NHOST_SUBDOMAIN" ]; then
+  echo "Injecting Nhost subdomain: $VITE_NHOST_SUBDOMAIN"
+  sed -i.bak "s/YOUR_SUBDOMAIN_HERE/$VITE_NHOST_SUBDOMAIN/g" dist/index.html
+  rm dist/index.html.bak
+fi
 
 # Create a .vercel/output directory to ensure Vercel deployment works
 echo "Setting up Vercel deployment structure..."

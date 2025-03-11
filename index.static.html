@@ -76,6 +76,12 @@
         }
       };
     }
+    
+    // Define environment variables globally to replace import.meta.env
+    window.env = {
+      VITE_NHOST_SUBDOMAIN: "YOUR_SUBDOMAIN_HERE",
+      VITE_NHOST_REGION: "eu-central-1"
+    };
   </script>
   
   <script src="/assets/main.js"></script>

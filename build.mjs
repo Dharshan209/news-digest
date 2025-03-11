@@ -47,6 +47,44 @@ function processCss() {
 async function buildJs() {
   console.log('Building JS bundle...');
   try {
+    // First create alias for problematic modules
+    console.log('Creating module aliases...');
+    
+    // Create a shim for jwt-decode
+    if (!fs.existsSync('./node_modules/jwt-decode')) {
+      console.log('Creating jwt-decode shim...');
+      // Make sure directory exists
+      if (!fs.existsSync('./node_modules/jwt-decode')) {
+        fs.mkdirSync('./node_modules/jwt-decode', { recursive: true });
+      }
+      
+      // Write a simple shim
+      fs.writeFileSync('./node_modules/jwt-decode/index.js', `
+        // Simple jwt-decode shim
+        export default function jwtDecode(token) {
+          try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+              return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+          } catch (e) {
+            console.error('Error decoding token:', e);
+            return {};
+          }
+        }
+      `);
+      
+      // Create a package.json for the shim
+      fs.writeFileSync('./node_modules/jwt-decode/package.json', JSON.stringify({
+        name: 'jwt-decode',
+        version: '3.1.2',
+        main: 'index.js',
+        type: 'module'
+      }));
+    }
+    
     await esbuild.build({
       entryPoints: [path.join(__dirname, 'src/main.jsx')],
       bundle: true,
@@ -70,6 +108,10 @@ async function buildJs() {
       jsx: 'automatic',
       sourcemap: false,
       metafile: true,
+      platform: 'browser',
+      alias: {
+        'jwt-decode': './node_modules/jwt-decode/index.js'
+      },
     });
     
     console.log('JS build complete');

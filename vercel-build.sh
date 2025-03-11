@@ -7,9 +7,9 @@ echo "Starting minimal build process..."
 echo "Installing dependencies..."
 npm install --no-optional --prefer-offline
 
-# Make sure we have esbuild
-echo "Ensuring esbuild is installed..."
-npm install --no-save esbuild
+# Make sure we have esbuild and jwt-decode
+echo "Ensuring build dependencies are installed..."
+npm install --no-save esbuild jwt-decode@3.1.2
 
 # Set environment variables from Vercel
 if [ -n "$VERCEL_ENV" ]; then

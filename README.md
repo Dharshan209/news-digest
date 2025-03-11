@@ -78,6 +78,43 @@ The system integrates multiple services:
 
 ## Getting Started
 
+### Running the Project Locally
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/yourusername/news-digest.git
+   cd news-digest
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**:
+   Create a `.env` file with the following variables:
+   ```
+   VITE_NHOST_SUBDOMAIN=your-nhost-subdomain
+   VITE_NHOST_REGION=your-nhost-region
+   ```
+
+4. **Start the development server**:
+   ```bash
+   npm run dev
+   ```
+
+5. **Build for production**:
+   ```bash
+   npm run build
+   ```
+
+6. **Deploy to Vercel**:
+   ```bash
+   npm run deploy
+   ```
+
+### Required Services
+
 This application requires the following accounts and configurations:
 
 - **Nhost Account**: For backend services
@@ -141,3 +178,25 @@ Once configured, the system will:
 - User feedback loops for preference refinement
 - Multi-language support
 - Content recommendation engine
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Authentication Issues**:
+   - Ensure your Nhost subdomain and region are correctly set in environment variables
+   - Check that you've properly signed up and are logged in
+
+2. **No Articles Showing**:
+   - Verify n8n workflows are running correctly
+   - Check the GraphQL queries for articles in the database
+   - Ensure NewsAPI integration is working properly
+
+3. **Deployment Problems**:
+   - Make sure NODE_VERSION is set to 18.x in your Vercel environment
+   - Check that all required environment variables are set
+   - Use the custom build script specified in vercel-build.sh
+
+### Getting Help
+
+For additional help, please open an issue on GitHub with detailed information about your problem.

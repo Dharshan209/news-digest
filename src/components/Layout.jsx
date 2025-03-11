@@ -149,7 +149,7 @@ export default function Layout({ children }) {
                 <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
                   {user?.metadata?.firstName ? (
                     <span className="text-blue-600 font-medium">
-                      {user.metadata.firstName.charAt(0)}{user.metadata.lastName?.charAt(0) || ''}
+                      {user.metadata.firstName.charAt(0)}{user.metadata?.lastName ? user.metadata.lastName.charAt(0) : ''}
                     </span>
                   ) : (
                     <UserIcon className="h-6 w-6 text-blue-600" />

@@ -6,12 +6,47 @@ import NewsCard from '../components/NewsCard';
 import { useToast } from '../contexts/ToastContext';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
+// Define all GraphQL queries outside of component for better performance
 const GET_ALL_ARTICLES = gql`
   query GetAllArticles($offset: Int!, $limit: Int!, $user_id: uuid!) {
     articles(
       offset: $offset
       limit: $limit
       order_by: { published_at: desc }
+    ) {
+      id
+      title
+      source
+      published_at
+      image_url
+      url
+      article_summaries {
+        summary
+      }
+      article_sentiments {
+        sentiment
+        score
+      }
+      saved_articles(where: { user_id: { _eq: $user_id } }) {
+        is_read
+        id
+      }
+    }
+  }
+`;
+
+const GET_ALL_ARTICLES_WITH_SEARCH = gql`
+  query GetArticlesWithSearch($offset: Int!, $limit: Int!, $user_id: uuid!, $search: String!) {
+    articles(
+      offset: $offset
+      limit: $limit
+      order_by: { published_at: desc }
+      where: {
+        _or: [
+          { title: { _ilike: $search } },
+          { content: { _ilike: $search } }
+        ]
+      }
     ) {
       id
       title
@@ -41,6 +76,41 @@ const GET_ARTICLES_BY_CATEGORY = gql`
       limit: $limit
       where: { 
         category: { _eq: $category }
+      }
+      order_by: { published_at: desc }
+    ) {
+      id
+      title
+      source
+      published_at
+      image_url
+      url
+      article_summaries {
+        summary
+      }
+      article_sentiments {
+        sentiment
+        score
+      }
+      saved_articles(where: { user_id: { _eq: $user_id } }) {
+        is_read
+        id
+      }
+    }
+  }
+`;
+
+const GET_CATEGORY_ARTICLES_WITH_SEARCH = gql`
+  query GetCategoryArticlesWithSearch($offset: Int!, $limit: Int!, $category: String!, $user_id: uuid!, $search: String!) {
+    articles(
+      offset: $offset
+      limit: $limit
+      where: {
+        category: { _eq: $category },
+        _or: [
+          { title: { _ilike: $search } },
+          { content: { _ilike: $search } }
+        ]
       }
       order_by: { published_at: desc }
     ) {
@@ -97,84 +167,13 @@ export default function Dashboard() {
   const [saveArticle] = useMutation(SAVE_ARTICLE);
   const [deleteSavedArticle] = useMutation(DELETE_SAVED_ARTICLE);
 
-  // Define separate queries based on search state
+  // Select the appropriate query based on search state
   const getAllArticlesQuery = useCallback(() => {
-    if (searchQuery) {
-      return gql`
-        query GetArticlesWithSearch($offset: Int!, $limit: Int!, $user_id: uuid!, $search: String!) {
-          articles(
-            offset: $offset
-            limit: $limit
-            order_by: { published_at: desc }
-            where: {
-              _or: [
-                { title: { _ilike: $search } },
-                { content: { _ilike: $search } }
-              ]
-            }
-          ) {
-            id
-            title
-            source
-            published_at
-            image_url
-            url
-            article_summaries {
-              summary
-            }
-            article_sentiments {
-              sentiment
-              score
-            }
-            saved_articles(where: { user_id: { _eq: $user_id } }) {
-              is_read
-              id
-            }
-          }
-        }
-      `;
-    }
-    return GET_ALL_ARTICLES;
+    return searchQuery ? GET_ALL_ARTICLES_WITH_SEARCH : GET_ALL_ARTICLES;
   }, [searchQuery]);
 
   const getCategoryArticlesQuery = useCallback(() => {
-    if (searchQuery) {
-      return gql`
-        query GetCategoryArticlesWithSearch($offset: Int!, $limit: Int!, $category: String!, $user_id: uuid!, $search: String!) {
-          articles(
-            offset: $offset
-            limit: $limit
-            where: {
-              category: { _eq: $category },
-              _or: [
-                { title: { _ilike: $search } },
-                { content: { _ilike: $search } }
-              ]
-            }
-            order_by: { published_at: desc }
-          ) {
-            id
-            title
-            source
-            published_at
-            image_url
-            url
-            article_summaries {
-              summary
-            }
-            article_sentiments {
-              sentiment
-              score
-            }
-            saved_articles(where: { user_id: { _eq: $user_id } }) {
-              is_read
-              id
-            }
-          }
-        }
-      `;
-    }
-    return GET_ARTICLES_BY_CATEGORY;
+    return searchQuery ? GET_CATEGORY_ARTICLES_WITH_SEARCH : GET_ARTICLES_BY_CATEGORY;
   }, [searchQuery]);
 
   const searchVariable = useMemo(() => {
@@ -234,6 +233,11 @@ export default function Dashboard() {
   
   const handleToggleSave = async (articleId, isSaved, savedArticleId) => {
     try {
+      if (!user || !user.id) {
+        addToast('You must be logged in to save articles', 'error');
+        return;
+      }
+
       if (isSaved && savedArticleId) {
         await deleteSavedArticle({
           variables: { id: savedArticleId }
@@ -421,11 +425,13 @@ export default function Dashboard() {
           <div className="space-y-4">
             {data?.articles && data.articles.length > 0 ? (
               data.articles.map((article) => (
-                <NewsCard 
-                  key={article.id} 
-                  article={article} 
-                  onToggleSave={handleToggleSave}
-                />
+                article && article.id ? (
+                  <NewsCard 
+                    key={article.id} 
+                    article={article} 
+                    onToggleSave={handleToggleSave}
+                  />
+                ) : null
               ))
             ) : (
               <div className="text-center py-16 bg-white rounded-lg shadow-sm">

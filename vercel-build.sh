@@ -30,8 +30,31 @@ cp index.static.html dist/index.html
 # Inject actual environment variables
 if [ -n "$VITE_NHOST_SUBDOMAIN" ]; then
   echo "Injecting Nhost subdomain: $VITE_NHOST_SUBDOMAIN"
-  sed -i.bak "s/YOUR_SUBDOMAIN_HERE/$VITE_NHOST_SUBDOMAIN/g" dist/index.html
-  rm dist/index.html.bak
+  # Use compatible sed syntax for both Linux and macOS
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS
+    sed -i '' "s/YOUR_SUBDOMAIN_HERE/$VITE_NHOST_SUBDOMAIN/g" dist/index.html
+  else
+    # Linux (Vercel environment)
+    sed -i "s/YOUR_SUBDOMAIN_HERE/$VITE_NHOST_SUBDOMAIN/g" dist/index.html
+    # Clean up backup if it was created
+    [ -f dist/index.html.bak ] && rm dist/index.html.bak
+  fi
+fi
+
+# Inject region if provided
+if [ -n "$VITE_NHOST_REGION" ]; then
+  echo "Injecting Nhost region: $VITE_NHOST_REGION"
+  # Use compatible sed syntax for both Linux and macOS
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS
+    sed -i '' "s/eu-central-1/$VITE_NHOST_REGION/g" dist/index.html
+  else
+    # Linux (Vercel environment)
+    sed -i "s/eu-central-1/$VITE_NHOST_REGION/g" dist/index.html
+    # Clean up backup if it was created
+    [ -f dist/index.html.bak ] && rm dist/index.html.bak
+  fi
 fi
 
 # Create a .vercel/output directory to ensure Vercel deployment works

@@ -9,7 +9,8 @@
   "scripts": {
     "dev": "vite",
     "build": "NODE_OPTIONS='--max-old-space-size=3584' vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "vercel deploy --prod"
   },
   "dependencies": {
     "@apollo/client": "^3.8.10",

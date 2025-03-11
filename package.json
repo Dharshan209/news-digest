@@ -4,13 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "engines": {
-    "node": "18.x"
+    "node": "16.x"
   },
   "scripts": {
     "dev": "vite",
-    "build": "NODE_OPTIONS=--openssl-legacy-provider vite build --no-optimize",
-    "preview": "vite preview",
-    "clean": "rm -rf node_modules && rm -rf dist"
+    "build": "vite build",
+    "vercel-build": "NODE_ENV=production node build.js",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@apollo/client": "^3.8.10",
@@ -23,6 +23,7 @@
     "clsx": "^2.1.0",
     "date-fns": "^3.3.1",
     "dompurify": "^3.2.4",
+    "esbuild": "^0.20.0",
     "graphql": "^16.8.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

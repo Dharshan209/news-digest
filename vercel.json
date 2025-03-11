@@ -1,14 +1,15 @@
 {
+  "version": 2,
   "rewrites": [
     { "source": "/(.*)", "destination": "/" }
   ],
-  "buildCommand": "./vercel-build.sh",
+  "buildCommand": "npm run vercel-build",
   "outputDirectory": "dist",
-  "framework": "vite",
+  "framework": null,
   "github": {
     "silent": true
   },
   "env": {
-    "NODE_VERSION": "18.x"
+    "NODE_VERSION": "16.x"
   }
 }

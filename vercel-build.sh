@@ -11,6 +11,54 @@ npm install --no-optional --prefer-offline
 echo "Ensuring build dependencies are installed..."
 npm install --no-save esbuild jwt-decode@3.1.2
 
+# Create a node_modules/jwt-decode directory if it doesn't exist
+mkdir -p node_modules/jwt-decode
+
+# Create a package.json file in the jwt-decode directory
+cat > node_modules/jwt-decode/package.json << 'EOF'
+{
+  "name": "jwt-decode",
+  "version": "3.1.2",
+  "main": "index.js"
+}
+EOF
+
+# Create an index.js file that exports the jwt-decode function
+cat > node_modules/jwt-decode/index.js << 'EOF'
+// Simple jwt-decode implementation for bundling
+module.exports = function(token) {
+  try {
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    console.error('Error decoding token:', e);
+    return {};
+  }
+};
+EOF
+
+# Also create modern export version
+cat > node_modules/jwt-decode/index.mjs << 'EOF'
+// ESM version
+export default function decode(token) {
+  try {
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    console.error('Error decoding token:', e);
+    return {};
+  }
+};
+EOF
+
 # Set environment variables from Vercel
 if [ -n "$VERCEL_ENV" ]; then
   echo "Setting up environment variables for Vercel deployment..."

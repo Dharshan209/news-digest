@@ -8,6 +8,24 @@
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/jwt-decode@3.1.2/build/jwt-decode.js" crossorigin></script>
+  <script>
+    // Ensure jwt-decode is globally available and properly initialized
+    if (typeof window.jwt_decode !== 'function') {
+      window.jwt_decode = function(token) {
+        try {
+          var base64Url = token.split('.')[1];
+          var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+          }).join(''));
+          return JSON.parse(jsonPayload);
+        } catch (e) {
+          console.error('Error decoding token:', e);
+          return {};
+        }
+      };
+    }
+  </script>
   <script src="https://unpkg.com/react-router-dom@6.20.1/dist/umd/react-router-dom.production.min.js" crossorigin></script>
   <style>
     /* Base styles until CSS loads */
@@ -64,23 +82,28 @@
     // Setup global modules to avoid dynamic imports
     window.modules = {};
     
-    // JWT decode polyfill - force global usage to prevent dynamic requires
-    window.jwt_decode = function(token) {
-      try {
-        var base64Url = token.split('.')[1];
-        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-        return JSON.parse(jsonPayload);
-      } catch (e) {
-        console.error('Error decoding token:', e);
-        return {};
-      }
-    };
+    // Ensure the global jwt_decode function is available
+    if (typeof window.jwt_decode !== 'function') {
+      window.jwt_decode = function(token) {
+        try {
+          var base64Url = token.split('.')[1];
+          var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+          }).join(''));
+          return JSON.parse(jsonPayload);
+        } catch (e) {
+          console.error('Error decoding token:', e);
+          return {};
+        }
+      };
+    }
     
-    // Make jwt_decode available for CommonJS requires
+    // Make objects available for CommonJS and ESM requires
     window.modules['jwt-decode'] = window.jwt_decode;
+    
+    // Create special export for ESM modules
+    window.modules['jwt-decode'].default = window.jwt_decode;
     
     // Define environment variables globally to replace import.meta.env
     window.env = {

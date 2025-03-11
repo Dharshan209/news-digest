@@ -3,6 +3,19 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+// Handle jwt-decode package alias
+const jwtDecodePlugin = {
+  name: 'jwt-decode-resolver',
+  setup(build) {
+    // Intercept imports to jwt-decode
+    build.onResolve({ filter: /^jwt-decode$/ }, args => {
+      return { 
+        path: path.resolve(__dirname, 'jwt-decoder.js')
+      };
+    });
+  }
+};
+
 // Setup paths
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const distFolder = path.join(__dirname, 'dist');
@@ -71,6 +84,7 @@ async function buildJs() {
       sourcemap: false,
       metafile: true,
       platform: 'browser',
+      plugins: [jwtDecodePlugin],
       external: [], // Don't mark anything as external to ensure proper bundling
       inject: [path.join(__dirname, 'shims.js')], // Inject shims for global polyfills
     });

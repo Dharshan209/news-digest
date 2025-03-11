@@ -84,36 +84,7 @@ async function buildJs() {
 
 // Process HTML
 function processHtml() {
-  console.log('Processing HTML...');
-  try {
-    let html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
-    
-    // Modify the HTML to use the correct asset paths
-    html = html.replace(
-      '<script type="module" src="/src/main.jsx"></script>',
-      '<script type="module" src="/assets/main.js"></script>'
-    );
-    
-    // Add CSS link
-    html = html.replace(
-      '</head>',
-      '  <link rel="stylesheet" href="/assets/index.css">\n</head>'
-    );
-    
-    // Add style.css if it exists
-    if (fs.existsSync(path.join(__dirname, 'style.css'))) {
-      html = html.replace(
-        '</head>',
-        '  <link rel="stylesheet" href="/assets/style.css">\n</head>'
-      );
-    }
-    
-    fs.writeFileSync(path.join(distFolder, 'index.html'), html);
-    console.log('HTML processing complete');
-  } catch (error) {
-    console.error('HTML processing failed:', error);
-    throw error;
-  }
+  console.log('HTML processing skipped - using static HTML file instead');
 }
 
 // Copy static assets

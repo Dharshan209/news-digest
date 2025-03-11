@@ -1,110 +1,43 @@
 #!/bin/bash
 set -e
 
+echo "Starting minimal build process..."
+
 # Install dependencies without optional dependencies
-npm install --no-optional
+echo "Installing dependencies..."
+npm install --no-optional --prefer-offline
 
-# Find rollup native.js file path
-ROLLUP_NATIVE_PATH=$(find ./node_modules/rollup -name "native.js" | grep -v esm)
+# Make sure we have esbuild
+echo "Ensuring esbuild is installed..."
+npm install --no-save esbuild
 
-if [ -n "$ROLLUP_NATIVE_PATH" ]; then
-  echo "Found Rollup native.js at: $ROLLUP_NATIVE_PATH"
-  
-  # Create backup
-  cp $ROLLUP_NATIVE_PATH ${ROLLUP_NATIVE_PATH}.backup
-  
-  # Patch the file to avoid the error with missing native module
-  cat > $ROLLUP_NATIVE_PATH << 'EOF'
-'use strict';
-
-Object.defineProperty(exports, '__esModule', { value: true });
-
-// Mock implementation of parser
-function parse(code, options = {}) {
-  console.warn('Using mock parser - functionality may be limited');
-  return { type: 'Program', body: [], sourceType: 'module' };
-}
-
-async function parseAsync(code, options = {}) {
-  return parse(code, options);
-}
-
-function getDefaultExportFromCjs (x) {
-  return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
-}
-
-// Mock implementation to avoid native dependencies
-const nonnative = {
-  isNativeExt: false,
-  loadBindings() {
-    return {
-      getDefaultExportFromCjs,
-      parse,
-      parseAsync
-    };
-  }
-};
-
-exports.getDefaultExportFromCjs = getDefaultExportFromCjs;
-exports.nonnative = nonnative;
-exports.parse = parse;
-exports.parseAsync = parseAsync;
-EOF
-
-  echo "Patched Rollup native.js to avoid native module error"
-
-  # Now let's also check the ESM version which might be different
-  ROLLUP_NATIVE_ESM_PATH=$(find ./node_modules/rollup -name "native.js" | grep esm)
-  
-  if [ -n "$ROLLUP_NATIVE_ESM_PATH" ]; then
-    echo "Found Rollup ESM native.js at: $ROLLUP_NATIVE_ESM_PATH"
-    
-    # Create backup
-    cp $ROLLUP_NATIVE_ESM_PATH ${ROLLUP_NATIVE_ESM_PATH}.backup
-    
-    # Patch the ESM version too
-    cat > $ROLLUP_NATIVE_ESM_PATH << 'EOF'
-// Mock implementation of parser
-export function parse(code, options = {}) {
-  console.warn('Using mock parser - functionality may be limited');
-  return { type: 'Program', body: [], sourceType: 'module' };
-}
-
-export async function parseAsync(code, options = {}) {
-  return parse(code, options);
-}
-
-export function getDefaultExportFromCjs (x) {
-  return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
-}
-
-// Mock implementation to avoid native dependencies
-export const nonnative = {
-  isNativeExt: false,
-  loadBindings() {
-    return {
-      getDefaultExportFromCjs,
-      parse,
-      parseAsync
-    };
-  }
-};
-EOF
-    echo "Patched Rollup ESM native.js to avoid native module error"
-  fi
-  
-else
-  echo "Could not find Rollup native.js"
-  exit 1
+# Set environment variables from Vercel
+if [ -n "$VERCEL_ENV" ]; then
+  echo "Setting up environment variables for Vercel deployment..."
+  # If env vars are provided by Vercel, they should be used
+  export VITE_NHOST_SUBDOMAIN=${VITE_NHOST_SUBDOMAIN:-""}
+  export VITE_NHOST_REGION=${VITE_NHOST_REGION:-""}
 fi
 
-# Run the build with increased memory
-export NODE_OPTIONS="--max-old-space-size=3584"
+# Run the custom build script (no rollup)
+echo "Running custom build..."
+node build.mjs
 
-echo "Attempting Vite build..."
-# Try the regular Vite build first
-if ! npx vite build --minify=esbuild; then
-  echo "Vite build failed, trying alternative build..."
-  # If the Vite build fails, use our custom esbuild script
-  node build-alternative.js
-fi
+# Create a .vercel/output directory to ensure Vercel deployment works
+echo "Setting up Vercel deployment structure..."
+mkdir -p .vercel/output/static
+cp -r dist/* .vercel/output/static/
+
+# Create Vercel config
+cat > .vercel/output/config.json << 'EOF'
+{
+  "version": 3,
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/assets/(.*)", "headers": { "cache-control": "public, max-age=31536000, immutable" } },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
+}
+EOF
+
+echo "Build completed successfully!"

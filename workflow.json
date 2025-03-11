@@ -1,0 +1,406 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": "hours",
+          "hourInterval": 24
+        },
+        "options": {}
+      },
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        400,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "{{$env.NHOST_GRAPHQL_URL}}",
+        "headers": {
+          "headers": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-hasura-admin-secret",
+              "value": "{{$env.NHOST_ADMIN_SECRET}}"
+            }
+          ]
+        },
+        "query": "query GetUserPreferences {\n  user_preferences {\n    user_id\n    keywords\n    topics {\n      name\n    }\n    sources(where: {is_trusted: {_eq: true}}) {\n      name\n      url\n    }\n  }\n}",
+        "variables": "{}",
+        "options": {}
+      },
+      "name": "Fetch User Preferences",
+      "type": "n8n-nodes-base.graphql",
+      "typeVersion": 1,
+      "position": [
+        600,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "For Each User",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 1,
+      "position": [
+        800,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://newsapi.org/v2/everything",
+        "options": {
+          "qs": {
+            "apiKey": "{{$env.NEWS_API_KEY}}",
+            "q": "={{ \" \" }}",
+            "sources": "={{ $json[\"sources\"].map(source => source.name).join() }}",
+            "sortBy": "publishedAt",
+            "pageSize": 10
+          }
+        },
+        "jsonParameters": false,
+        "autoPaginate": false
+      },
+      "name": "Fetch News Articles",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1000,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "For Each Article",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "{{$env.NHOST_GRAPHQL_URL}}",
+        "headers": {
+          "headers": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-hasura-admin-secret",
+              "value": "{{$env.NHOST_ADMIN_SECRET}}"
+            }
+          ]
+        },
+        "query": "query GetArticleID($url: String!) {\n  articles(where: {url: {_eq: $url}}) {\n    id\n  }\n}",
+        "variables": "{\n  \"url\": \"{{$json[\"url\"]}}\"\n}",
+        "options": {}
+      },
+      "name": "Check Existing Article",
+      "type": "n8n-nodes-base.graphql",
+      "typeVersion": 1,
+      "position": [
+        1400,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "value1": "={{ $json[\"data\"][\"articles\"][0][\"id\"] }}",
+              "operation": "notExists"
+            }
+          ]
+        }
+      },
+      "name": "Article Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "{{$env.NHOST_GRAPHQL_URL}}",
+        "headers": {
+          "headers": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-hasura-admin-secret",
+              "value": "{{$env.NHOST_ADMIN_SECRET}}"
+            }
+          ]
+        },
+        "query": "mutation InsertArticle($object: articles_insert_input!) {\n  insert_articles_one(object: $object) {\n    id\n  }\n}",
+        "variables": "{{\n  \"object\": {\n    \"title\": \"{{$json[\"title\"]}}\",\n    \"url\": \"{{$json[\"url\"]}}\",\n    \"source\": \"{{$json[\"source\"][\"name\"]}}\",\n    \"content\": \"{{$json[\"content\"]}}\",\n    \"author\": \"{{$json[\"author\"]}}\",\n    \"published_at\": \"{{$json[\"publishedAt\"]}}\",\n    \"category\": \"{{$json[\"category\"]}}\",\n    \"image_url\": \"{{$json[\"urlToImage\"]}}\"\n  }\n}}",
+        "options": {}
+      },
+      "name": "Insert New Article",
+      "type": "n8n-nodes-base.graphql",
+      "typeVersion": 1,
+      "position": [
+        1800,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "options": {
+          "headers": {
+            "Authorization": "Bearer {{$env.OPENROUTER_API_KEY}}",
+            "HTTP-Referer": "https://n8n.io",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "model": "google/palm-2",
+            "messages": [
+              {
+                "role": "user",
+                "content": "Summarize this article in 3 sentences: {{$json[\"content\"]}}"
+              }
+            ]
+          },
+          "method": "POST"
+        }
+      },
+      "name": "Generate Summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        2000,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "options": {
+          "headers": {
+            "Authorization": "Bearer {{$env.OPENROUTER_API_KEY}}",
+            "HTTP-Referer": "https://n8n.io",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "model": "google/palm-2",
+            "messages": [
+              {
+                "role": "user",
+                "content": "Analyze sentiment. Respond with JSON: {sentiment: 'positive|neutral|negative', score: 0.0-1.0, explanation: 'string'}. Article: {{$json[\"content\"]}}"
+              }
+            ]
+          },
+          "method": "POST"
+        }
+      },
+      "name": "Analyze Sentiment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        2200,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "{{$env.NHOST_GRAPHQL_URL}}",
+        "headers": {
+          "headers": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-hasura-admin-secret",
+              "value": "{{$env.NHOST_ADMIN_SECRET}}"
+            }
+          ]
+        },
+        "query": "mutation InsertSummary($object: article_summaries_insert_input!) {\n  insert_article_summaries_one(object: $object) {\n    id\n  }\n}",
+        "variables": "{{\n  \"object\": {\n    \"article_id\": \"{{$json[\"articleId\"]}}\",\n    \"summary\": \"{{$json[\"choices\"][0][\"message\"][\"content\"]}}\"\n  }\n}}",
+        "options": {}
+      },
+      "name": "Store Summary",
+      "type": "n8n-nodes-base.graphql",
+      "typeVersion": 1,
+      "position": [
+        2400,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "url": "{{$env.NHOST_GRAPHQL_URL}}",
+        "headers": {
+          "headers": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-hasura-admin-secret",
+              "value": "{{$env.NHOST_ADMIN_SECRET}}"
+            }
+          ]
+        },
+        "query": "mutation InsertSentiment($object: article_sentiments_insert_input!) {\n  insert_article_sentiments_one(object: $object) {\n    id\n  }\n}",
+        "variables": "{{\n  \"object\": {\n    \"article_id\": \"{{$json[\"articleId\"]}}\",\n    \"sentiment\": \"{{$json[\"sentiment\"]}}\",\n    \"score\": {{$json[\"score\"]}},\n    \"explanation\": \"{{$json[\"explanation\"]}}\"\n  }\n}}",
+        "options": {}
+      },
+      "name": "Store Sentiment",
+      "type": "n8n-nodes-base.graphql",
+      "typeVersion": 1,
+      "position": [
+        2400,
+        400
+      ]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch User Preferences",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch User Preferences": {
+      "main": [
+        [
+          {
+            "node": "For Each User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "For Each User": {
+      "main": [
+        [
+          {
+            "node": "Fetch News Articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch News Articles": {
+      "main": [
+        [
+          {
+            "node": "For Each Article",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "For Each Article": {
+      "main": [
+        [
+          {
+            "node": "Check Existing Article",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Existing Article": {
+      "main": [
+        [
+          {
+            "node": "Article Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Article Exists?": {
+      "main": [
+        [
+          {
+            "node": "Insert New Article",
+            "type": "if",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert New Article": {
+      "main": [
+        [
+          {
+            "node": "Generate Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Summary": {
+      "main": [
+        [
+          {
+            "node": "Analyze Sentiment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Sentiment": {
+      "main": [
+        [
+          {
+            "node": "Store Summary",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Store Sentiment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

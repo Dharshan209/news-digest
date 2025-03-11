@@ -7,5 +7,8 @@
   "framework": "vite",
   "github": {
     "silent": true
+  },
+  "env": {
+    "NODE_VERSION": "18.x"
   }
 }

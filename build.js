@@ -40,6 +40,11 @@ try {
   console.log('Processing CSS...');
   
   // Build JS bundle
+  // First generate a package list from node_modules
+  console.log('Reading dependencies from package.json...');
+  const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
+  
+  // Simple bundling configuration
   const result = await esbuild.build({
     entryPoints: ['./src/main.jsx'],
     bundle: true,
@@ -58,14 +63,17 @@ try {
     define: {
       'process.env.NODE_ENV': '"production"',
       'global': 'window',
+      'process.env.VITE_NHOST_SUBDOMAIN': process.env.VITE_NHOST_SUBDOMAIN ? `"${process.env.VITE_NHOST_SUBDOMAIN}"` : '""',
+      'process.env.VITE_NHOST_REGION': process.env.VITE_NHOST_REGION ? `"${process.env.VITE_NHOST_REGION}"` : '""',
     },
     platform: 'browser',
     sourcemap: false,
     target: 'es2020',
-    resolveExtensions: ['.js', '.jsx', '.json'],
+    resolveExtensions: ['.js', '.jsx', '.json', '.mjs'],
     external: ['*.woff', '*.woff2', '*.ttf', '*.eot'],
     logLevel: 'info',
     metafile: true,
+    nodePaths: ['node_modules'],
   });
   
   console.log('Build complete');

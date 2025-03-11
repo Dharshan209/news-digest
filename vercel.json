@@ -1,15 +1,12 @@
 {
   "version": 2,
+  "buildCommand": "npm install --no-optional && npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
   "rewrites": [
     { "source": "/(.*)", "destination": "/" }
   ],
-  "buildCommand": "npm run vercel-build",
-  "outputDirectory": "dist",
-  "framework": null,
   "github": {
     "silent": true
-  },
-  "env": {
-    "NODE_VERSION": "18.x"
   }
 }

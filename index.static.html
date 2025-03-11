@@ -93,6 +93,20 @@
       if (moduleName === 'jwt-decode') {
         return window.jwt_decode;
       }
+      if (moduleName === 'react') {
+        return window.React;
+      }
+      if (moduleName === 'react-dom') {
+        return window.ReactDOM;
+      }
+      if (moduleName === 'react-dom/client') {
+        return {
+          createRoot: window.ReactDOM.createRoot
+        };
+      }
+      if (moduleName === 'react-router-dom') {
+        return window.ReactRouterDOM;
+      }
       console.error('Attempted to require:', moduleName);
       throw new Error('Module not found: ' + moduleName);
     };

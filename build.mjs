@@ -47,33 +47,8 @@ function processCss() {
 async function buildJs() {
   console.log('Building JS bundle...');
   try {
-    // Use CDN for React to reduce build complexity
-    const injectCDN = `
-// Import React from CDN
-import React from 'https://esm.sh/react@18.2.0';
-import ReactDOM from 'https://esm.sh/react-dom@18.2.0/client';
-`;
-
-    // Pre-process main.jsx to use CDN imports
-    let mainJsContent = fs.readFileSync(path.join(__dirname, 'src/main.jsx'), 'utf8');
-    
-    // Backup original file
-    fs.writeFileSync(path.join(__dirname, 'src/main.jsx.backup'), mainJsContent);
-    
-    // Use ESM imports for React
-    mainJsContent = mainJsContent
-      .replace(/import React from ['"]react['"]/g, '// import React from "react"')
-      .replace(/import ReactDOM from ['"]react-dom\/client['"]/g, '// import ReactDOM from "react-dom/client"');
-    
-    // Add CDN imports at the top
-    mainJsContent = injectCDN + mainJsContent;
-    
-    // Write temp file
-    fs.writeFileSync(path.join(__dirname, 'src/main.jsx.temp'), mainJsContent);
-    
-    // Build with the temporary file
     await esbuild.build({
-      entryPoints: [path.join(__dirname, 'src/main.jsx.temp')],
+      entryPoints: [path.join(__dirname, 'src/main.jsx')],
       bundle: true,
       minify: true,
       format: 'esm',
@@ -95,29 +70,11 @@ import ReactDOM from 'https://esm.sh/react-dom@18.2.0/client';
       jsx: 'automatic',
       sourcemap: false,
       metafile: true,
-      external: [
-        'react', 
-        'react-dom', 
-        'react-dom/client'
-      ],
     });
-    
-    // Restore original file
-    fs.copyFileSync(path.join(__dirname, 'src/main.jsx.backup'), path.join(__dirname, 'src/main.jsx'));
-    fs.unlinkSync(path.join(__dirname, 'src/main.jsx.backup'));
-    fs.unlinkSync(path.join(__dirname, 'src/main.jsx.temp'));
     
     console.log('JS build complete');
   } catch (error) {
     console.error('JS build failed:', error);
-    // Clean up temp files
-    if (fs.existsSync(path.join(__dirname, 'src/main.jsx.backup'))) {
-      fs.copyFileSync(path.join(__dirname, 'src/main.jsx.backup'), path.join(__dirname, 'src/main.jsx'));
-      fs.unlinkSync(path.join(__dirname, 'src/main.jsx.backup'));
-    }
-    if (fs.existsSync(path.join(__dirname, 'src/main.jsx.temp'))) {
-      fs.unlinkSync(path.join(__dirname, 'src/main.jsx.temp'));
-    }
     throw error;
   }
 }
@@ -128,24 +85,27 @@ function processHtml() {
   try {
     let html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
     
-    // Create a new HTML file with the correct references
-    const newHtml = `<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NewsDigest - Your Personalized News Experience</title>
-    <link rel="stylesheet" href="/assets/index.css">
-    ${fs.existsSync(path.join(__dirname, 'style.css')) ? '<link rel="stylesheet" href="/assets/style.css">' : ''}
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/assets/main.js"></script>
-  </body>
-</html>`;
+    // Modify the HTML to use the correct asset paths
+    html = html.replace(
+      '<script type="module" src="/src/main.jsx"></script>',
+      '<script type="module" src="/assets/main.js"></script>'
+    );
     
-    fs.writeFileSync(path.join(distFolder, 'index.html'), newHtml);
+    // Add CSS link
+    html = html.replace(
+      '</head>',
+      '  <link rel="stylesheet" href="/assets/index.css">\n</head>'
+    );
+    
+    // Add style.css if it exists
+    if (fs.existsSync(path.join(__dirname, 'style.css'))) {
+      html = html.replace(
+        '</head>',
+        '  <link rel="stylesheet" href="/assets/style.css">\n</head>'
+      );
+    }
+    
+    fs.writeFileSync(path.join(distFolder, 'index.html'), html);
     console.log('HTML processing complete');
   } catch (error) {
     console.error('HTML processing failed:', error);

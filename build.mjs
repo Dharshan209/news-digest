@@ -71,7 +71,12 @@ async function buildJs() {
       sourcemap: false,
       metafile: true,
       platform: 'browser',
-      external: ['jwt-decode'], // Mark as external to avoid bundling issues
+      external: [
+        'jwt-decode', 
+        'react',
+        'react-dom',
+        'react-router-dom'
+      ], // Mark as external to avoid bundling issues
       inject: [path.join(__dirname, 'shims.js')], // Inject shims for global polyfills
     });
     

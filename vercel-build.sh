@@ -23,6 +23,10 @@ fi
 echo "Running custom build..."
 node build.mjs
 
+# Add JWT decode polyfill to HTML
+echo "Adding JWT decode polyfill to HTML..."
+node processHtml.js
+
 # Create a .vercel/output directory to ensure Vercel deployment works
 echo "Setting up Vercel deployment structure..."
 mkdir -p .vercel/output/static

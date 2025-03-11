@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "npm install --no-optional && npm run build",
+  "buildCommand": "./vercel-build.sh",
   "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [

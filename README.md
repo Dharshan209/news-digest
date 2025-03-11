@@ -2,6 +2,29 @@
 
 This project implements an end-to-end news aggregation system that automatically fetches, processes, and delivers personalized news content to users.
 
+## Deployment
+
+This project is configured for deployment on Vercel. To deploy:
+
+1. Push your code to GitHub
+2. Connect your GitHub repository to Vercel
+3. Vercel will automatically detect the Vite configuration and deploy the application
+
+### Manual Deployment
+
+You can also deploy manually using the Vercel CLI:
+
+```bash
+# Install Vercel CLI if you don't have it
+npm install -g vercel
+
+# Login to Vercel
+vercel login
+
+# Deploy from your project directory
+vercel
+```
+
 ## Core Features
 
 1. **News Fetching**: Automatically retrieves articles from free news APIs based on user-defined topics
